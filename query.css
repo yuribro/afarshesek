@@ -1,0 +1,41 @@
+body {
+font-size: 20px;
+color:#000000;
+background-color:#999999;
+}
+
+#pageHeader {
+	font-size:40px;
+	color:#B3D4FC;
+	margin-bottom: 20px;
+}
+
+
+#externalURLs > ul {
+	list-style:hebrew;
+	margin:0;
+	padding:0;
+	font-size: 20px;
+}
+
+#externalURLs { 
+	border-right:20px;
+	padding:10px;
+	padding-top:30px;
+	width:100px;
+	height:250px;
+	background-color:#EEEEEE;
+	border-radius:3%;
+	float:right;
+}
+	
+#queryForm {
+	margin-right:30px;
+	float:right;
+	
+	
+}
+	
+
+
+
