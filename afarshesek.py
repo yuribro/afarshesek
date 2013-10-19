@@ -30,12 +30,12 @@ GOOGLE_CAL_NAME = "afarkeseth@gmail.com"
 def format_time(d):
     return d.isoformat().split('.')[0] + "z"
 
-def get_show_list():
+def get_show_list(days=30):
     params = {}
 
     now = datetime.datetime.now()
     params["timeMin"] = format_time(now)
-    params["timeMax"] = format_time(now + datetime.timedelta(days=14))
+    params["timeMax"] = format_time(now + datetime.timedelta(days=days))
     params["key"] = GAPI_KEY
 
     con = httplib.HTTPSConnection("www.googleapis.com")
@@ -96,8 +96,8 @@ def dump_show_html(s):
     <br />
     ''' % s
     
-def get_filtered_show_list():
-    shows = get_show_list()
+def get_filtered_show_list(days=30):
+    shows = get_show_list(days=days)
     shows = filter(filter_by_artist, shows)
     shows = filter(filter_by_location, shows)
     return u'\n'.join(map(dump_show_html, shows))
@@ -115,7 +115,11 @@ def root_page():
         <h1> אפרשסק </h1>
         <form action="/search" method="post">
             שמות של להקות: 
-            <textarea name="names" type="text" cols="100" rows="10"></textarea>
+            <textarea name="names" cols="100" rows="10"></textarea>
+            <br />
+           מספר ימים קדימה לחפש:
+           <input name="days" type="text" value="14">
+           <br />
             <input value="חפש" type="submit" />
         </form>
     </div>
@@ -123,7 +127,8 @@ def root_page():
 
 @post('/search') 
 def do_search():
-    names = request.forms.get('names').split()
+    days = int(request.forms.get('days'))
+    names = request.forms.get('names').split('\n')
     names = map(lambda x: x.strip(), names)
     names = map(lambda x: x.decode("utf-8"), names)
 
@@ -143,7 +148,7 @@ def do_search():
 
     page += u"<h2> הופעות מתאימות: </h2>"
 
-    page += get_filtered_show_list()
+    page += get_filtered_show_list(days=days)
     page += u"</div>"
 
     return page
