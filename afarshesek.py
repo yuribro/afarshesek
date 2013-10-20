@@ -6,16 +6,13 @@ import urllib
 import datetime
 import json
 
-from private import GAPI_KEY
+from private import GAPI_KEY, LOCATION
 
-from bottle import run, get, post, request
+import bottle
 
 ###########
 
-ARTISTS = [u"מארק אליהו", 
-           u"גבע אלון", 
-           u"דניאלה ספקטור",
-           u"רביד כחלני"]
+ARTISTS = []
 
 ###########
 
@@ -71,6 +68,7 @@ def get_show_list(days=30):
 def filter_by_artist(s):
     for art in ARTISTS:
         if art in s["name"]:
+            print "match:", art, " ~ ", s["name"]
             return True
 
     return False
@@ -108,27 +106,23 @@ def get_filtered_show_list(days=30):
 ######################
 
 
-@get('/') 
+@bottle.get('/') 
 def root_page():
-    return u'''
-    <div dir="rtl">
-        <h1> אפרשסק </h1>
-        <form action="/search" method="post">
-            שמות של להקות: 
-            <textarea name="names" cols="100" rows="10"></textarea>
-            <br />
-           מספר ימים קדימה לחפש:
-           <input name="days" type="text" value="14">
-           <br />
-            <input value="חפש" type="submit" />
-        </form>
-    </div>
-    '''
+    return bottle.static_file("query.html", root="html/")
 
-@post('/search') 
+@bottle.route('/css/<filename>')
+def serve_css(filename):
+    return bottle.static_file(filename, root="css/")
+        
+
+@bottle.post('/search') 
 def do_search():
-    days = int(request.forms.get('days'))
-    names = request.forms.get('names').split('\n')
+    try:
+        days = int(bottle.request.forms.get('days'))
+    except ValueError:
+        days = 14
+
+    names = bottle.request.forms.get('names').split('\n')
     names = map(lambda x: x.strip(), names)
     names = map(lambda x: x.decode("utf-8"), names)
 
@@ -160,10 +154,8 @@ def do_search():
 # Main
 ######################
 
-
 def main():
-    #map(print_show, get_filtered_show_list())
-    run(host='localhost', port=8080, debug=True)
+    bottle.run(host='0.0.0.0', port=8080, debug=True)
 
 if __name__ == "__main__":
     main()
